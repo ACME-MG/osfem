@@ -37,8 +37,8 @@ def prep_plot(x_label:str, y_label:str, x_units:str="", y_units:str="", title:st
     # Set x and y labels
     x_unit_str = f" ({x_units})" if x_units != "" else ""
     y_unit_str = f" ({y_units})" if y_units != "" else ""
-    plt.xlabel(f"{x_label.replace('_', ' ').capitalize()}{x_unit_str}", fontsize=size)
-    plt.ylabel(f"{y_label.replace('_', ' ').capitalize()}{y_unit_str}", fontsize=size)
+    plt.xlabel(f"{x_label}{x_unit_str}", fontsize=size)
+    plt.ylabel(f"{y_label}{y_unit_str}", fontsize=size)
     
     # Format
     plt.xticks(fontsize=12)
@@ -103,29 +103,19 @@ def lighten_colour(colour:str, factor:float=0.5):
     white = (1, 1, 1)
     return tuple(factor * w + (1 - factor) * c for c, w in zip(rgb, white))
 
-def create_1to1_plot(raw_cal_list:list, raw_val_list:list, sim_cal_list:list, sim_val_list:list,
-                     label:str="", units:str="", limits:tuple=None) -> None:
+def create_1to1(label:str, units:str, limits:tuple) -> None:
     """
     Plots a 1:1 comparison
 
     Parameters:
-    * `raw_cal_list`: List of raw calibrated values
-    * `raw_val_list`: List of raw validated values
-    * `sim_cal_list`: List of simulated calibrated values
-    * `sim_val_list`: List of simulated validated values
-    * `label`:        Label to represent values
-    * `units`:        Units to place beside label
-    * `limits`:       Limits of the plot
+    * `label`:  Label to represent values
+    * `units`:  Units to place beside label
+    * `limits`: Limits of the plot
     """
 
     # Initialise figure    
     prep_plot(f"Simulated {label}", f"Measured {label}", units, units)
     plt.gca().set_aspect("equal", "box")
-    
-    # Determine limits if undefined
-    if limits == None:
-        combined_list = raw_cal_list + raw_val_list + sim_cal_list + sim_val_list
-        limits = (min(combined_list), max(combined_list))
     set_limits(limits, limits)
 
     # Add 'conservative' region
@@ -134,22 +124,46 @@ def create_1to1_plot(raw_cal_list:list, raw_val_list:list, sim_cal_list:list, si
     plt.text(limits[1]-0.48*(limits[1]-limits[0]), limits[0]+0.05*(limits[1]-limits[0]), "Non-conservative", fontsize=12, color="black")
     plt.plot([limits[0], limits[1]], [limits[0], limits[1]], color="black", linestyle="--", linewidth=1)
 
-    # Plot data
-    ch = plt.scatter(sim_cal_list, raw_cal_list, color=CAL_COLOUR, edgecolor="black", linewidth=1, label="Calibration", marker="o", s=8**2, zorder=3)
-    vh = plt.scatter(sim_val_list, raw_val_list, color=VAL_COLOUR, edgecolor="black", linewidth=1, label="Validation",  marker="o", s=8**2, zorder=3)
-    handles = [ch]
-    if raw_val_list != []:
-        handles += [vh]
+    # Define legend
+    ch = plt.scatter([], [], color=CAL_COLOUR, edgecolor="black", linewidth=1, label="Calibration", marker="o", s=10**2, zorder=3)
+    vh = plt.scatter([], [], color=VAL_COLOUR, edgecolor="black", linewidth=1, label="Validation",  marker="o", s=10**2, zorder=3)
+    handles = [ch, vh]
     legend = plt.legend(handles=handles, ncol=1, framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12, loc="upper left")
     plt.gca().add_artist(legend)
 
-    # Plot calibration LOBF
-    x_list = [limits[0], limits[1]]
-    cal_lobf_m, cal_lobf_b = np.polyfit(sim_cal_list, raw_cal_list, 1)
-    cal_y_list = [cal_lobf_m*x + cal_lobf_b for x in x_list]
-    plt.plot(x_list, cal_y_list, color=CAL_COLOUR, linewidth=2, linestyle="--", zorder=2)
+    # Determine tick scale
+    max_magnitude = max([abs(limit) for limit in limits])
+    exp = np.floor(np.log10(max_magnitude))
 
-    # Plot validation LOBF
-    val_lobf_m, val_lobf_b = np.polyfit(sim_val_list, raw_val_list, 1)
-    val_y_list = [val_lobf_m*x + val_lobf_b for x in x_list]
-    plt.plot(x_list, val_y_list, color=VAL_COLOUR, linewidth=2, linestyle="--", zorder=2)
+    # Scale ticks
+    plt.gca().ticklabel_format(axis="x", style="sci", scilimits=(exp,exp))
+    plt.gca().ticklabel_format(axis="y", style="sci", scilimits=(exp,exp))
+    plt.gca().xaxis.major.formatter._useMathText = True
+    plt.gca().yaxis.major.formatter._useMathText = True
+
+def plot_1to1(fit_list:list, prd_list:list, colour:str, marker:str) -> None:
+    """
+    Plots data on the 1-to-1 plot
+
+    Parameters:
+    * `fit_list`: The fitting data
+    * `prd_list`: The predicted data
+    * `colour`:   The colour of the markers
+    * `marker`:   The type of markers
+    """
+    plt.scatter(prd_list, fit_list, zorder=3, edgecolor="black", color=colour, linewidth=1, s=10**2, marker=marker)
+
+def lobf_1to1(fit_list:list, prd_list:list, colour:str, limits:tuple) -> None:
+    """
+    Plots the LOBF on the 1-to-1 plot
+
+    Parameters:
+    * `fit_list`: The fitting data
+    * `prd_list`: The predicted data
+    * `colour`:   The colour of the LOBF
+    * `limits`:   Limits of the plot
+    """
+    x_list = [limits[0], limits[1]]
+    lobf_m, lobf_b = np.polyfit(prd_list, fit_list, 1)
+    y_list = [lobf_m*x + lobf_b for x in x_list]
+    plt.plot(x_list, y_list, color=colour, linewidth=2, linestyle="--", zorder=2)
