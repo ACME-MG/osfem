@@ -8,6 +8,7 @@
 # Libraries
 from osfem.general import csv_to_dict
 from osfem.interpolator import intervaluate
+from copy import deepcopy
 
 # Define datas
 CAL_ALL = False
@@ -70,6 +71,10 @@ def get_creep(parent_path:str) -> list:
             stf = intervaluate(data_dict["time"], data_dict["strain"], data["ox"])
         summary_dict["stf"] = stf
 
+        # Define oxidation fields
+        summary_dict["rttf"] = max(data_dict["time"])
+        summary_dict["dttf"] = max(data_dict["time"])-summary_dict["ttf"]
+
         # Add fitting status
         summary_dict["fit"] = data["fit"]
 
@@ -96,3 +101,41 @@ def split_data_list(data_list:list) -> tuple:
         else:
             val_data_list.append(data)
     return cal_data_list, val_data_list
+
+def remove_data(data_dict:dict, x_value:float, x_label:str, after:bool=True) -> dict:
+    """
+    Removes data after a specific value of a curve
+
+    Parameters:
+    * `data_dict`: The data dictionary to remove the data from
+    * `x_value`:   The value to start removing the data
+    * `x_label`:   The label corresponding to the value
+    * `after`:     Whether to remove before or after
+
+    Returns the curve after data removal
+    """
+
+    # Define before or after
+    index_list = list(range(len(data_dict[x_label])))
+    if after:
+        comparator = lambda a, b : a > b
+    else:
+        comparator = lambda a, b : a < b
+        index_list.reverse()
+
+    # Initialise new curve
+    new_data_dict = deepcopy(data_dict)
+    for header in new_data_dict.keys():
+        if isinstance(new_data_dict[header], list) and len(data_dict[header]) == len(data_dict[x_label]):
+            new_data_dict[header] = []
+            
+    # Remove data after specific value
+    for i in index_list:
+        if comparator(data_dict[x_label][i], x_value):
+            break
+        for header in new_data_dict.keys():
+            if isinstance(new_data_dict[header], list) and len(data_dict[header]) == len(data_dict[x_label]):
+                new_data_dict[header].append(data_dict[header][i])
+    
+    # Return new data
+    return new_data_dict

@@ -168,7 +168,7 @@ class Modeller:
         params = self.opt_params if params == None else params
         fit_list, prd_list = self.evaluate(data_list, params)
         are = np.average([abs((f-p)/f) for f, p in zip(fit_list, prd_list)])
-        return f"{round_sf(are, 5)*100}%"
+        return f"{round_sf(are*100, 5)}%"
 
     def evaluate(self, data_list:list, params:list) -> tuple:
         """
