@@ -1,6 +1,6 @@
 """
- Title:         TTF LLM
- Description:   Logarithmic Larson-Miller
+ Title:         STF MMG
+ Description:   Modified Monkman Grant 
  Author:        Janzen Choi
 
 """
@@ -15,9 +15,8 @@ class Model(__Model__):
         """
         Runs at the start, once
         """
-        # self.add_param("c", r"$c_{MG}$", 0, 1e3)
-        self.add_param("c", r"$c_{MG}$", 0, 50)
-        self.add_param("m", r"$m_{MG}$", 0, 1)
+        self.add_param("c", r"$c_{Do}$", 0, 1)
+        self.add_param("m", r"$m_{Do}$", 0, 2)
     
     def evaluate(self, c, m) -> float:
         """
@@ -29,5 +28,6 @@ class Model(__Model__):
         Returns the response
         """
         mcr = self.get_field("mcr")
-        ttf = (c/mcr)**m
-        return ttf
+        ttf = self.get_field("ttf")
+        stf = ttf/(c/mcr)**m
+        return stf

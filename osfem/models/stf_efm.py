@@ -1,6 +1,6 @@
 """
- Title:         STF TPM
- Description:   Theta Projection Model 
+ Title:         STF ELM
+ Description:   Evan's Linear Model 
  Author:        Janzen Choi
 
 """
@@ -15,10 +15,10 @@ class Model(__Model__):
         """
         Runs at the start, once
         """
-        self.add_param("a", r"$a$", -2, 0, lambda x : -10**x, (-1,0))
-        self.add_param("b", r"$b$", -3, 0, lambda x : 10**x,  (0,0.1))
-        self.add_param("c", r"$c$", -5, 0, lambda x : 10**x,  (0,0.001))
-        self.add_param("d", r"$d$", -6, 0, lambda x : -10**x, (-0.0001,0))
+        self.add_param("a", r"$a_{Ev}$", -1, 1)
+        self.add_param("b", r"$b_{Ev}$", -1, 1)
+        self.add_param("c", r"$c_{Ev}$", -1, 1)
+        self.add_param("d", r"$d_{Ev}$", -1, 1)
     
     def evaluate(self, a, b, c, d) -> float:
         """
@@ -31,9 +31,5 @@ class Model(__Model__):
         """
         s = self.get_field("stress")
         t = self.get_field("temperature")
-        a = -10**a
-        b = 10**b
-        c = 10**c
-        d = -10**d
         stf = a + b*s + c*t + d*s*t
         return stf

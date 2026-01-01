@@ -1,6 +1,6 @@
 """
- Title:         MCR BAR
- Description:   Barnes' model 
+ Title:         STF SFM
+ Description:   Soares Fracture Model 
  Author:        Janzen Choi
 
 """
@@ -16,12 +16,13 @@ class Model(__Model__):
         """
         Runs at the start, once
         """
-        self.add_param("a", r"$A_{GA}$",     0, 1e3)
-        self.add_param("b", r"$\beta_{GA}$", 0, 1e1)
-        self.add_param("n", r"$n_{GA}$",     1, 1e1)
-        self.add_param("q", r"$Q_{GA}$",     0, 1e3)
+        self.add_param("a", r"$a_{So}$", -1, 1)
+        self.add_param("b", r"$b_{So}$", -1, 1)
+        self.add_param("c", r"$c_{So}$", -1, 1)
+        self.add_param("d", r"$d_{So}$", -1, 1)
+        self.add_param("e", r"$e_{So}$", -1, 1)
     
-    def evaluate(self, a, b, n, q) -> float:
+    def evaluate(self, a, b, c, d, e) -> float:
         """
         Evaluates the model
 
@@ -32,5 +33,5 @@ class Model(__Model__):
         """
         s = self.get_field("stress")
         t = self.get_field("temperature")
-        mcr = a*np.sinh(b*s)**n*np.exp(-q/8.314/t)
-        return mcr
+        stf = a + b/t + c*s/t + d*np.log(1/t) + e*s
+        return stf

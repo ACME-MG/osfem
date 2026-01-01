@@ -16,11 +16,12 @@ class Model(__Model__):
         """
         Runs at the start, once
         """
-        self.add_param("a", r"$a$", 0, 1e4)
-        self.add_param("b", r"$b$", 0, 1e3)
-        self.add_param("c", r"$c$", 0, 1e5)
-        self.add_param("C", r"$C$", 0, 1e1)
+        self.add_param("a", r"$a_{LM}$", 0, 1e1)
+        self.add_param("b", r"$b_{LM}$", 0, 1e1)
+        self.add_param("c", r"$c_{LM}$", 0, 1e2)
+        self.add_param("C", r"$C_{LM}$", 0, 1e1)
     
+    # def evaluate(self, a, b, c, C) -> float:
     def evaluate(self, a, b, c, C) -> float:
         """
         Evaluates the model

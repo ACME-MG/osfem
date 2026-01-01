@@ -3,6 +3,7 @@ from osfem.general import transpose, round_sf, dict_to_csv
 from osfem.data import get_creep, split_data_list
 from osfem.boxplot import plot_boxplots
 from osfem.modeller import Modeller
+import numpy as np
 
 # Constants
 NAME  = sys.argv[1]
@@ -13,8 +14,8 @@ modeller = Modeller(NAME)
 
 # Read data
 data_list = get_creep("data")
-# data_list = [data.update({"stress": data["stress"]/80}) or data for data in data_list]
-# data_list = [data.update({"temperature": data["temperature"]/1000}) or data for data in data_list]
+data_list = [data.update({"stress": data["stress"]/80}) or data for data in data_list]
+data_list = [data.update({"temperature": data["temperature"]/1000}) or data for data in data_list]
 cal_data_list, val_data_list = split_data_list(data_list)
 
 # Initialise storage
@@ -26,14 +27,20 @@ val_are_list = []
 for i in range(ITERS):
 
     # Optimise
+    import time
+    start_time = time.time()
     opt_params = modeller.optimise(
         data_list  = cal_data_list,
-        num_gens   = 100,
-        population = 100,
-        offspring  = 100,
+        # num_gens   = 1000,
+        # population = 100,
+        # offspring  = 100,
+        num_gens   = 500,
+        population = 500,
+        offspring  = 500,
         crossover  = 0.9,
         mutation   = 0.01,
     )
+    print(time.time()-start_time)
 
     # Scale the parameters
     scale_list = modeller.get_info("scale")

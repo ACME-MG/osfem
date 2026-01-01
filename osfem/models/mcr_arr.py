@@ -16,9 +16,9 @@ class Model(__Model__):
         """
         Runs at the start, once
         """
-        self.add_param("a", r"$A$", 0, 1e0)
-        self.add_param("n", r"$n$", 1, 1e1)
-        self.add_param("q", r"$Q$", 0, 1e6)
+        self.add_param("a", r"$A_{NA}$", 0, 1e6)
+        self.add_param("n", r"$n_{NA}$", 1, 1e1)
+        self.add_param("q", r"$Q_{NA}$", 0, 1e3)
     
     def evaluate(self, a, n, q) -> float:
         """

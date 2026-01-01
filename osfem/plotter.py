@@ -141,17 +141,15 @@ def create_1to1(label:str, units:str, limits:tuple) -> None:
     plt.gca().xaxis.major.formatter._useMathText = True
     plt.gca().yaxis.major.formatter._useMathText = True
 
-def plot_1to1(fit_list:list, prd_list:list, colour:str, marker:str) -> None:
+def plot_1to1(fit_list:list, prd_list:list, settings) -> None:
     """
     Plots data on the 1-to-1 plot
 
     Parameters:
     * `fit_list`: The fitting data
     * `prd_list`: The predicted data
-    * `colour`:   The colour of the markers
-    * `marker`:   The type of markers
     """
-    plt.scatter(prd_list, fit_list, zorder=3, edgecolor="black", color=colour, linewidth=1, s=10**2, marker=marker)
+    plt.scatter(prd_list, fit_list, zorder=3, edgecolor="black", linewidth=1, s=10**2, **settings)
 
 def lobf_1to1(fit_list:list, prd_list:list, colour:str, limits:tuple) -> None:
     """
